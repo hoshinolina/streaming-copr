@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+      - name: Trigger webhook
+        shell: bash
+        env:
+          PROJECT_NAME: hoshinolina/streaming
+          PROJECT_ID: 227929
+          UUID: ${{ secrets.COPR_WEBHOOK_UUID }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          echo "Changes: $BEFORE .. $AFTER"
+          git fetch origin $BEFORE
+          packages="$(git diff --name-only "$BEFORE..$AFTER" | grep / | cut -d/ -f1 | sort | uniq)"
+          for p in $packages; do
+            echo "Testing: $p"
+            [ -e "$p/$p.spec" ] || continue
+            echo "Triggering build for $p"
+
+            build="$(curl -s -X POST --variable "%UUID" --expand-url "https://copr.fedorainfracloud.org/webhooks/custom/$PROJECT_ID/{{UUID}}/$p/")"
+            echo "https://copr.fedorainfracloud.org/coprs/$PROJECT_NAME/build/$build/"
+          done
