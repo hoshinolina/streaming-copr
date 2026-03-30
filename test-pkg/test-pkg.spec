@@ -8,6 +8,7 @@ URL:            https://github.com/hoshinolina/obs-pwvideo
 
 %description
 Test package.
+Foo.
 
 %prep
 
