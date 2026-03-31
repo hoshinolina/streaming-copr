@@ -1,5 +1,5 @@
 Name:           proaudio-setup
-Version:        0.1.2
+Version:        0.1.3
 Release:        %autorelease
 Summary:        Automatic proaudio system tuning
 
